@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ramesh — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+
+<!-- React + Babel (no build step needed) -->
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #000; color: #fff; font-family: 'Outfit', sans-serif; overflow-x: hidden; }
+  #root { min-height: 100vh; }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: #000; }
+  ::-webkit-scrollbar-thumb { background: #9933ff; border-radius: 2px; }
+  @keyframes drip {
+    0%,100% { opacity:.4; transform:translateY(0); }
+    50% { opacity:1; transform:translateY(10px); }
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(30px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ═══════════════════════════════════════════════════════════════════
+//  ✏️  EDIT YOUR DATA HERE
+// ═══════════════════════════════════════════════════════════════════
+
+// ── Social bar icons ──────────────────────────────────────────────
+// Paste any image URL in "img". Leave img as null to show text label instead.
+const SOCIALS = [
+  {
+    label: "GitHub",
+    href:  "https://github.com/igene-wa18",         // ← paste your GitHub profile link
+    img:   "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+  },
+  {
+    label: "LinkedIn",
+    href:  "https://www.linkedin.com/in/ramesh-kumar-a0785131a/",    // ← paste your LinkedIn link
+    img:   "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg"
+  },
+  {
+    label: "Twitter",
+    href:  "https://twitter.com/",        // ← paste your Twitter/X link
+    img:   "https://upload.wikimedia.org/wikipedia/commons/5/57/X_logo_2023_%28white%29.png"
+  },
+  {
+    label: "Instagram",
+    href:  "https://www.instagram.com/igene_wa18/",      // ← paste your Instagram link
+    img:   "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"
+  },
+  // ➕ ADD MORE LIKE THIS:
+  // { label: "YouTube", href: "https://youtube.com/@you", img: "https://..." },
+];
+
+const PROJECTS = [
+  {
+    title: "Attendance System",
+    color: "#9933ff",
+    img:   null,   // ← paste image URL here e.g. "https://i.imgur.com/abc.png"
+    desc: "Full MERN stack with JWT auth, role-based access (Admin/Manager/Employee), leave tracking & memos.",
+    tags: ["MongoDB", "Express", "React", "Node.js"],
+    link: "#"
+  },
+  {
+    title: "E-Commerce Platform",
+    color: "#3366ff",
+    img:   "C:\Users\rames\OneDrive\Pictures\Screenshots\Screenshot 2026-03-19 180817.png",   // ← paste image URL here//
+    desc: "Shopping app with cart, payments, product management and a full admin dashboard.",
+    tags: ["React", "TypeScript", "Redux", "Node.js"],
+    link: "C:\Users\rames\OneDrive\Desktop\lumiere"
+  },
+  {
+    title: "3D Portfolio",
+    color: "#ff3388",
+    img:   null,   // ← paste image URL here
+    desc: "Interactive WebGL portfolio with Three.js character, particle systems and scroll-driven animations.",
+    tags: ["Three.js", "WebGL", "GSAP"],
+    link: "#"
+  },
+  {
+    title: "3D Portfolio",
+    color: "#ff69b4",
+    img:   null,   // ← paste image URL here
+    desc: "Interactive WebGL portfolio with Three.js character, particle systems and scroll-driven animations.",
+    tags: ["Three.js", "WebGL", "GSAP"],
+    link: "#"
+  },
+  {
+    title: "NETFLIX CLONE",
+    color: "#FF0000",
+    img:   null,   // ← paste image URL here
+    desc: "netflix like interface . movie-card when hover zoom's out with name , sign-in,log-in,and contact page also included",
+    tags: ["html" , "css", "javascript"],
+    link: "#"
+  },
+  // ➕ ADD MORE PROJECTS BELOW LIKE THIS:
+  // {
+  //   title: "Your New Project",
+  //   color: "#00ccaa",
+  //   img:   "https://i.imgur.com/yourimage.png",
+  //   desc: "Short description of what this project does.",
+  //   tags: ["Tag1", "Tag2", "Tag3"],
+  //   link: "#"
+  // },
+];
+
+const TECH = [
+  { name: "React",       icon: "⚛",  level: 88 },
+  { name: "JavaScript",  icon: "JS", level: 92 },
+  { name: "TypeScript",  icon: "TS", level: 76 },
+  { name: "Three.js",    icon: "3D", level: 72 },
+  { name: "WebGL",       icon: "GL", level: 65 },
+  { name: "Node.js",     icon: "N",  level: 82 },
+  { name: "GSAP",        icon: "GS", level: 74 },
+  { name: "MongoDB",     icon: "DB", level: 79 },
+  // ➕ ADD MORE SKILLS LIKE THIS:
+  // { name: "Docker", icon: "🐳", level: 60 },
+];
+
+const KNOWLEDGE = [
+  {
+    area: "Web Dev",
+    items: ["SPA Architecture", "REST APIs", "JWT Auth", "Responsive CSS"]
+  },
+  {
+    area: "3D & Graphics",
+    items: ["WebGL Shaders", "Scene Graphs", "Particles", "Camera Rigs"]
+  },
+  {
+    area: "Backend",
+    items: ["Express.js", "MongoDB Atlas", "RESTful APIs", "Role-Based Auth"]
+  },
+  {
+    area: "Toolchain",
+    items: ["Git & GitHub", "VS Code", "Figma", "npm / yarn"]
+  },
+  // ➕ ADD A NEW DOMAIN LIKE THIS:
+  // {
+  //   area: "Cloud",
+  //   items: ["AWS S3", "Vercel", "Firebase", "Docker"]
+  // },
+];
+
+// ═══════════════════════════════════════════════════════════════════
+//  COMPONENTS
+// ═══════════════════════════════════════════════════════════════════
+
+// ── Navbar ────────────────────────────────────────────────────────
+function Navbar() {
+  return (
+    <nav style={{
+      position:'fixed', top:0, left:0, right:0, zIndex:300,
+      padding:'18px 48px', display:'flex', justifyContent:'space-between', alignItems:'center',
+      background:'linear-gradient(to bottom, rgba(0,0,0,0.85), transparent)'
+    }}>
+      <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:5 }}>
+        RAMESH.DEV
+      </div>
+      <div style={{ display:'flex', gap:36 }}>
+        {['ABOUT','WORK','CONTACT'].map(n => (
+          <a key={n} href="#" style={{
+            fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:3,
+            color:'#666', textDecoration:'none', transition:'color .2s'
+          }}
+          onMouseEnter={e=>e.target.style.color='#fff'}
+          onMouseLeave={e=>e.target.style.color='#666'}>{n}</a>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+// ── Social Sidebar ────────────────────────────────────────────────
+function SocialBar() {
+  return (
+    <div style={{
+      position:'fixed', left:24, top:'50%', transform:'translateY(-50%)',
+      zIndex:300, display:'flex', flexDirection:'column', gap:12
+    }}>
+      {SOCIALS.map(({img, label, href}) => (
+        <a key={label} href={href} target="_blank" rel="noreferrer" style={{
+          width:36, height:36, display:'flex', alignItems:'center', justifyContent:'center',
+          border:'1px solid #222', borderRadius:6, color:'#555', overflow:'hidden',
+          fontSize:9, fontFamily:"'Space Mono',monospace", textDecoration:'none',
+          transition:'all .2s', background:'rgba(0,0,0,0.5)'
+        }}
+        onMouseEnter={e=>{e.currentTarget.style.borderColor='#9933ff';e.currentTarget.style.transform='scale(1.1)';}}
+        onMouseLeave={e=>{e.currentTarget.style.borderColor='#222';e.currentTarget.style.transform='scale(1)';}}
+        >
+          {img
+            ? <img src={img} alt={label} style={{ width:20, height:20, objectFit:'contain', filter:'brightness(0.6)', transition:'filter .2s' }}
+                onMouseEnter={e=>e.target.style.filter='brightness(1)'}
+                onMouseLeave={e=>e.target.style.filter='brightness(0.6)'}/>
+            : <span style={{fontSize:9}}>{label}</span>
+          }
+        </a>
+      ))}
+    </div>
+  );
+}
+
+// ── Section Dots ──────────────────────────────────────────────────
+function SectionDots({ current, total }) {
+  return (
+    <div style={{
+      position:'fixed', right:28, top:'50%', transform:'translateY(-50%)',
+      zIndex:300, display:'flex', flexDirection:'column', gap:10
+    }}>
+      {Array.from({length:total}).map((_,i) => (
+        <div key={i} style={{
+          width: current===i ? 8 : 4,
+          height: current===i ? 8 : 4,
+          borderRadius:'50%',
+          background: current===i ? '#9933ff' : '#333',
+          transition:'all .3s',
+          boxShadow: current===i ? '0 0 10px #9933ff' : 'none'
+        }}/>
+      ))}
+    </div>
+  );
+}
+
+// ── Project Card ──────────────────────────────────────────────────
+function ProjectCard({ project }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background:'rgba(10,8,25,0.9)',
+        border:`1px solid ${hovered ? project.color+'88' : project.color+'22'}`,
+        borderRadius:10, overflow:'hidden', cursor:'pointer',
+        transform: hovered ? 'translateY(-6px)' : 'translateY(0)',
+        boxShadow: hovered ? `0 20px 60px ${project.color}25` : 'none',
+        transition:'all .3s'
+      }}
+    >
+      {/* Image slot */}
+      <div
+        style={{
+          width:'100%', height:200, background:'#08061a',
+          display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+          gap:8, position:'relative', overflow:'hidden',
+          borderBottom:`2px solid ${project.color}33`
+        }}
+      >
+        {project.img ? (
+          <img src={project.img} alt={project.title} style={{
+            width:'100%', height:'100%', objectFit:'cover',
+            transform: hovered ? 'scale(1.04)' : 'scale(1)', transition:'transform .4s'
+          }}/>
+        ) : (
+          <>
+            <div style={{ fontSize:30, opacity:.15 }}>🖼</div>
+            <div style={{
+              fontFamily:"'Space Mono',monospace", fontSize:9, letterSpacing:2,
+              color: hovered ? '#9933ff' : '#2a2a3a', transition:'color .2s'
+            }}>ADD  img: "URL"  IN CODE</div>
+            <div style={{
+              position:'absolute', bottom:8, right:10,
+              fontFamily:"'Space Mono',monospace", fontSize:7, color:'#1a1a2a'
+            }}>PROJECTS ARRAY → img field</div>
+          </>
+        )}
+      </div>
+
+      {/* Card body */}
+      <div style={{ padding:'14px 18px 16px' }}>
+        <div style={{
+          fontFamily:"'Bebas Neue',sans-serif", fontSize:20, letterSpacing:2,
+          color:project.color, marginBottom:6
+        }}>{project.title}</div>
+        <div style={{ fontSize:11, color:'#777', lineHeight:1.6, fontWeight:300, marginBottom:12 }}>
+          {project.desc}
+        </div>
+        <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
+          {project.tags.map(t => (
+            <span key={t} style={{
+              fontFamily:"'Space Mono',monospace", fontSize:7, letterSpacing:1,
+              color:project.color, border:`1px solid ${project.color}44`, padding:'2px 8px', borderRadius:2
+            }}>{t}</span>
+          ))}
+        </div>
+        <div style={{
+          marginTop:10, fontFamily:"'Space Mono',monospace", fontSize:8,
+          color:'#333', letterSpacing:1, display:'flex', alignItems:'center', gap:6
+        }}>VIEW PROJECT <span>→</span></div>
+      </div>
+    </div>
+  );
+}
+
+// ── Tech Card ─────────────────────────────────────────────────────
+function TechCard({ item }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <div
+      onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
+      style={{
+        background:'rgba(8,6,22,0.9)',
+        border:`1px solid ${hov ? 'rgba(153,51,255,.4)' : 'rgba(153,51,255,.1)'}`,
+        borderRadius:8, padding:'20px 18px', transition:'border-color .3s'
+      }}
+    >
+      <div style={{ fontFamily:"'Space Mono',monospace", fontSize:16, color:'#9933ff', marginBottom:8, fontWeight:'bold' }}>
+        {item.icon}
+      </div>
+      <div style={{ fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:1, color:'#ccc', marginBottom:12 }}>
+        {item.name}
+      </div>
+      <div style={{ height:2, background:'#111', borderRadius:1, overflow:'hidden' }}>
+        <div style={{
+          height:'100%', width:`${item.level}%`,
+          background:'linear-gradient(to right,#9933ff,#3366ff)', borderRadius:1
+        }}/>
+      </div>
+      <div style={{ marginTop:5, fontFamily:"'Space Mono',monospace", fontSize:7, color:'#333', textAlign:'right' }}>
+        {item.level}%
+      </div>
+    </div>
+  );
+}
+
+// ── Knowledge Card ────────────────────────────────────────────────
+function KnowCard({ item }) {
+  return (
+    <div style={{
+      background:'rgba(8,6,22,0.9)',
+      border:'1px solid rgba(153,51,255,.1)',
+      borderRadius:8, padding:'24px 20px'
+    }}>
+      <div style={{
+        fontFamily:"'Bebas Neue',sans-serif", fontSize:18, letterSpacing:3,
+        color:'#9933ff', marginBottom:16,
+        borderBottom:'1px solid rgba(153,51,255,.15)', paddingBottom:12
+      }}>{item.area}</div>
+      {item.items.map((it,j) => (
+        <div key={j} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
+          <div style={{
+            width:4, height:4, background:'#9933ff', borderRadius:'50%',
+            flexShrink:0, boxShadow:'0 0 6px #9933ff'
+          }}/>
+          <div style={{ fontFamily:"'Space Mono',monospace", fontSize:9, color:'#888', lineHeight:1.5 }}>
+            {it}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Panel wrapper ─────────────────────────────────────────────────
+function Panel({ visible, tag, title, children, style={} }) {
+  return (
+    <div style={{
+      position:'fixed', inset:0, zIndex:10,
+      display:'flex', flexDirection:'column', justifyContent:'center',
+      padding:'80px 7% 60px', overflowY:'auto',
+      opacity: visible ? 1 : 0,
+      transform: visible ? 'translateY(0)' : 'translateY(28px)',
+      pointerEvents: visible ? 'auto' : 'none',
+      transition:'opacity .7s ease, transform .7s ease',
+      ...style
+    }}>
+      <div style={{ fontFamily:"'Space Mono',monospace", fontSize:9, letterSpacing:5, color:'#9933ff', marginBottom:10 }}>
+        {tag}
+      </div>
+      <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:'clamp(36px,4vw,52px)', letterSpacing:3, marginBottom:18 }}>
+        {title}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ── Three.js canvas ───────────────────────────────────────────────
+function ThreeCanvas({ onCameraRef }) {
+  const mountRef = useRef();
+
+  useEffect(() => {
+    const el = mountRef.current;
+    if (!el || typeof THREE === 'undefined') return;
+
+    const W = window.innerWidth, H = window.innerHeight;
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x010105);
+    scene.fog = new THREE.FogExp2(0x010105, 0.05);
+
+    const camera = new THREE.PerspectiveCamera(52, W/H, 0.1, 100);
+    camera.position.set(0, 2.35, 3.6);
+    camera.lookAt(0, 1.9, 0);
+    onCameraRef(camera);
+
+    const renderer = new THREE.WebGLRenderer({ antialias:true });
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    el.appendChild(renderer.domElement);
+
+    // Lights
+    scene.add(new THREE.AmbientLight(0x1a1040, 3));
+    const keyL = new THREE.DirectionalLight(0xffffff, 1.4);
+    keyL.position.set(2,6,4); keyL.castShadow=true; scene.add(keyL);
+    const purpL = new THREE.PointLight(0x9933ff, 5, 9);
+    purpL.position.set(0,2,-2.5); scene.add(purpL);
+    const bl = new THREE.PointLight(0x2255ff,2.5,12);
+    bl.position.set(-3.5,2,1.5); scene.add(bl);
+    const rl = new THREE.DirectionalLight(0xcc88ff,.9);
+    rl.position.set(-2,5,-4); scene.add(rl);
+
+    // Helpers
+    const mk=(c,r=.7,m=.05)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
+    const box=(p,mat,w,h,d,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=true;p.add(m);return m;};
+    const cyl=(p,mat,rt,rb,ht,sg,x,y,z)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,ht,sg),mat);m.position.set(x,y,z);m.castShadow=true;p.add(m);return m;};
+    const sph=(p,mat,r,sg,x,y,z,sx=1,sy=1,sz=1)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(r,sg,sg),mat);m.position.set(x,y,z);m.scale.set(sx,sy,sz);m.castShadow=true;p.add(m);return m;};
+
+    const char=new THREE.Group(); scene.add(char);
+    const skinM=mk(0xfce0cc,.65),hairM=mk(0x0d0d0d,.85),shirtM=mk(0xf0f0f0,.8),metalM=mk(0x0a0a1a,.3,.7),deskM=mk(0x12122a,.38,.45);
+
+    // Head + hair
+    sph(char,skinM,.53,36,0,2.1,0,1,1.08,.96);
+    const hd=new THREE.Mesh(new THREE.SphereGeometry(.555,36,18,0,Math.PI*2,0,Math.PI*.52),hairM);
+    hd.position.set(0,2.12,.02); char.add(hd);
+    sph(char,hairM,.32,16,-.14,2.54,.2,1.5,.42,.65);
+
+    // Eyes
+    const ewM=mk(0xffffff,.3),irM=new THREE.MeshStandardMaterial({color:0x5533bb,roughness:.2,metalness:.4}),puM=mk(0,.8);
+    [[-0.165,2.1,.44],[.165,2.1,.44]].forEach(([x,y,z])=>{
+      sph(char,ewM,.098,16,x,y,z,.78,.88,.58);
+      sph(char,irM,.062,14,x,y,z+.038);
+      sph(char,puM,.033,12,x,y,z+.056);
+    });
+
+    // Brows
+    [[-0.175,.15],[.175,-.15]].forEach(([x,rz])=>{
+      const b=new THREE.Mesh(new THREE.BoxGeometry(.18,.042,.038),mk(0x111111,.9));
+      b.position.set(x,2.275,.43); b.rotation.z=rz; char.add(b);
+    });
+
+    // Nose, ears, neck, torso
+    sph(char,mk(0xeecdb8,.7),.072,12,0,1.99,.5,.68,.52,.78);
+    [-1,1].forEach(s=>sph(char,skinM,.13,16,s*.555,2.06,0,.52,.92,.52));
+    cyl(char,skinM,.168,.2,.28,16,0,1.67,0);
+    cyl(char,shirtM,.32,.38,.88,22,0,1.1,0);
+    [-1,1].forEach(s=>sph(char,shirtM,.21,16,s*.44,1.43,0,1,.78,.88));
+
+    // Arms + hands — reaching toward keyboard at back of desk
+    [-1,1].forEach(s=>{
+      const ua=new THREE.Mesh(new THREE.CylinderGeometry(.098,.11,.52,12),shirtM);
+      ua.position.set(s*.58,1.1,0); ua.rotation.z=s*.28; char.add(ua);
+      const fa=new THREE.Mesh(new THREE.CylinderGeometry(.078,.092,.48,12),skinM);
+      fa.position.set(s*.7,.68,-.22); fa.rotation.x=.68; fa.rotation.z=s*.08; char.add(fa);
+      sph(char,skinM,.095,12,s*.71,.63,-.45,.88,.58,1.05);
+    });
+    cyl(char,mk(0x0d0d1a,.85),.37,.3,.58,20,0,.44,0);
+
+    // Desk + LED
+    const dt=new THREE.Mesh(new THREE.BoxGeometry(3.4,.09,1.5),deskM);
+    dt.position.set(0,.63,.25); dt.receiveShadow=true; char.add(dt);
+    const led=new THREE.Mesh(new THREE.BoxGeometry(3.4,.018,.018),
+      new THREE.MeshStandardMaterial({color:0x9933ff,emissive:0x9933ff,emissiveIntensity:3}));
+    led.position.set(0,.678,-.47); char.add(led);
+    [[-1.58,-.44],[1.58,-.44],[-1.58,.97],[1.58,.97]].forEach(([x,z])=>{
+      const l=new THREE.Mesh(new THREE.BoxGeometry(.06,.9,.06),metalM); l.position.set(x,.15,z); char.add(l);
+    });
+
+    // Monitor — moved to FRONT of desk (facing camera)
+    box(char,mk(0x0a0a0a,.5,.55),1.35,.85,.06,0,1.17,.72);
+    box(char,new THREE.MeshStandardMaterial({color:0x6622cc,emissive:0x9933ff,emissiveIntensity:1.8,roughness:.1}),1.18,.74,.012,0,1.17,.68);
+    const lnM=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:.6});
+    [.25,.12,-.01,-.14,-.27].forEach((yo,i)=>{const w=[.4,.6,.35,.55,.28][i]; box(char,lnM,w,.018,.001,-.2,1.17+yo,.69);});
+    const scrL=new THREE.PointLight(0x9933ff,3.5,5); scrL.position.set(0,1.17,.55); char.add(scrL);
+    cyl(char,metalM,.038,.12,.38,12,0,.68,.72);
+    box(char,metalM,.42,.04,.28,0,.49,.72);
+
+    // Keyboard + mouse — on back half of desk (near character)
+    box(char,mk(0x0e0e22,.5,.4),.88,.026,.3,0,.644,-.12);
+    for(let r=0;r<4;r++) for(let c=0;c<10;c++) box(char,mk(0x1a1a38,.4,.3),.058,.01,.052,-.365+c*.078,.658,-.068+r*.067);
+    sph(char,mk(0x0a0a1e,.5,.5),.058,12,.62,.653,-.1,.88,.48,1.28);
+    // Plant + mug on desk sides
+    cyl(char,mk(0x3a1a10,.8),.07,.09,.14,10,-1.3,.715,.3);
+    sph(char,mk(0x1a5522,.9),.12,8,-1.3,.83,.3);
+    cyl(char,mk(0x2a1a0a,.7),.055,.055,.1,14,1.2,.7,.3);
+
+    // Chair — moved to BACK of desk (behind desk, far from camera)
+    const chM=mk(0x080816,.9);
+    box(char,chM,.8,.075,.75,0,.29,-.62);
+    box(char,chM,.8,.9,.065,0,.745,-1.0);
+    [-1,1].forEach(s=>box(char,chM,.048,.042,.52,s*.38,.48,-.62));
+    for(let i=0;i<5;i++){const sp=new THREE.Mesh(new THREE.BoxGeometry(.055,.038,.38),metalM);sp.rotation.y=(i/5)*Math.PI*2;sp.position.set(0,-.065,-.62);char.add(sp);}
+    cyl(char,metalM,.03,.03,.42,8,0,.08,-.62);
+
+    // Floor + glow
+    const fl=new THREE.Mesh(new THREE.PlaneGeometry(40,40),mk(0x030308,1));
+    fl.rotation.x=-Math.PI/2; fl.position.y=-.37; fl.receiveShadow=true; scene.add(fl);
+    const gc=new THREE.Mesh(new THREE.CircleGeometry(2.2,64),
+      new THREE.MeshStandardMaterial({color:0x9933ff,emissive:0x9933ff,emissiveIntensity:.08,transparent:true,opacity:.2}));
+    gc.rotation.x=-Math.PI/2; gc.position.set(0,-.36,0); scene.add(gc);
+
+    // Particles
+    const pN=400,pp=new Float32Array(pN*3);
+    for(let i=0;i<pN;i++){pp[i*3]=(Math.random()-.5)*30;pp[i*3+1]=Math.random()*14;pp[i*3+2]=(Math.random()-.5)*30;}
+    const pGeo=new THREE.BufferGeometry();
+    pGeo.setAttribute('position',new THREE.BufferAttribute(pp,3));
+    const ptcl=new THREE.Points(pGeo,new THREE.PointsMaterial({color:0x9933ff,size:.038,transparent:true,opacity:.65}));
+    scene.add(ptcl);
+
+    // Render loop
+    let raf;
+    const tick=()=>{
+      raf=requestAnimationFrame(tick);
+      const t=Date.now()*.001;
+      char.position.y=Math.sin(t*.7)*.022;
+      char.rotation.y=Math.sin(t*.25)*.045;
+      ptcl.rotation.y+=.0003;
+      purpL.intensity=4.5+Math.sin(t*1.4);
+      scrL.intensity=3+Math.sin(t*2.1)*.7;
+      renderer.render(scene,camera);
+    };
+    tick();
+
+    const onResize=()=>{
+      const w=window.innerWidth,h=window.innerHeight;
+      camera.aspect=w/h; camera.updateProjectionMatrix(); renderer.setSize(w,h);
+    };
+    window.addEventListener('resize',onResize);
+
+    return ()=>{
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize',onResize);
+      renderer.dispose();
+      if(el.contains(renderer.domElement)) el.removeChild(renderer.domElement);
+    };
+  }, []);
+
+  return <div ref={mountRef} style={{ position:'fixed', inset:0, zIndex:0 }}/>;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  MAIN APP
+// ═══════════════════════════════════════════════════════════════════
+function App() {
+  const [scrollY, setScrollY] = useState(0);
+  const cameraRef = useRef(null);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const sy = window.scrollY;
+      setScrollY(sy);
+      if (cameraRef.current) {
+        const p = Math.min(sy / (window.innerHeight * 1.8), 1);
+        cameraRef.current.position.set(0, 2.35 - p*1.35, 3.6 + p*4.8);
+        cameraRef.current.lookAt(0, 1.2 + (1-p)*0.7, 0);
+      }
+    };
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const vh = window.innerHeight;
+  const section = scrollY < vh*.4   ? 0
+                : scrollY < vh*2.2  ? 1
+                : scrollY < vh*3.6  ? 2
+                : scrollY < vh*4.9  ? 3
+                : 4;
+
+  const heroVisible  = section <= 1;
+  const TOTAL_DOTS   = 5;
+
+  return (
+    <div style={{ fontFamily:"'Outfit',sans-serif" }}>
+      {/* Scroll space */}
+      <div style={{ height:'620vh' }}/>
+
+      {/* 3D Scene */}
+      <ThreeCanvas onCameraRef={cam => cameraRef.current = cam}/>
+
+      {/* Vignette */}
+      <div style={{
+        position:'fixed', inset:0, zIndex:1, pointerEvents:'none',
+        background:'radial-gradient(ellipse at center, transparent 38%, rgba(0,0,5,0.55) 100%)'
+      }}/>
+
+      {/* UI */}
+      <Navbar/>
+      <SocialBar/>
+      <SectionDots current={section} total={TOTAL_DOTS}/>
+
+      {/* Resume */}
+      <div style={{
+        position:'fixed', bottom:28, right:28, zIndex:300,
+        fontFamily:"'Space Mono',monospace", fontSize:9, letterSpacing:2,
+        color:'#666', border:'1px solid #333', padding:'9px 20px', cursor:'pointer',
+        display:'flex', alignItems:'center', gap:6, background:'rgba(0,0,0,0.5)',
+        transition:'all .2s'
+      }}
+      onMouseEnter={e=>{e.currentTarget.style.borderColor='#9933ff';e.currentTarget.style.color='#fff';}}
+      onMouseLeave={e=>{e.currentTarget.style.borderColor='#333';e.currentTarget.style.color='#666';}}
+      >RESUME ↗</div>
+
+      {/* ── HERO ── */}
+      <div style={{
+        position:'fixed', inset:0, zIndex:10,
+        display:'flex', alignItems:'center', justifyContent:'space-between',
+        padding:'0 7%',
+        opacity: heroVisible ? 1 : 0,
+        transform: heroVisible ? 'translateY(0)' : 'translateY(28px)',
+        transition:'opacity .75s, transform .75s',
+        pointerEvents: heroVisible ? 'auto' : 'none'
+      }}>
+        {/* Left */}
+        <div>
+          <div style={{ fontFamily:"'Space Mono',monospace", fontSize:11, color:'#9933ff', letterSpacing:3, marginBottom:10 }}>
+            Hello! I'm
+          </div>
+          <div style={{ fontFamily:"'Bebas Neue',sans-serif", lineHeight:.9, letterSpacing:3, fontSize:'clamp(52px,5.5vw,80px)' }}>
+            RAMESH<br/>KUMAR
+          </div>
+          <div style={{ marginTop:18, width:48, height:1, background:'#9933ff' }}/>
+          <div style={{ marginTop:14, fontSize:12, color:'#555', fontWeight:300, lineHeight:1.8 }}>
+            Creative Developer<br/>Building immersive web experiences
+          </div>
+        </div>
+
+        {/* Right */}
+        <div style={{ textAlign:'right' }}>
+          <div style={{ fontFamily:"'Space Mono',monospace", fontSize:11, color:'#444', letterSpacing:2, marginBottom:10 }}>
+            A Creative
+          </div>
+          <div style={{ fontFamily:"'Bebas Neue',sans-serif", lineHeight:.9, letterSpacing:3 }}>
+            <div style={{ fontSize:'clamp(44px,5vw,70px)', color:'#9933ff', textShadow:'0 0 50px rgba(153,51,255,.7)' }}>
+              WEBSITE
+            </div>
+            <div style={{ fontSize:'clamp(44px,5vw,70px)' }}>DEVELOPER</div>
+          </div>
+          <div style={{ marginTop:20, display:'flex', gap:8, justifyContent:'flex-end', flexWrap:'wrap' }}>
+            {['React','TypeScript','Three.js','WebGL','GSAP'].map(t => (
+              <span key={t} style={{
+                fontFamily:"'Space Mono',monospace", fontSize:9, letterSpacing:1,
+                color:'#9933ff', border:'1px solid rgba(153,51,255,.2)', padding:'4px 12px', borderRadius:2
+              }}>{t}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Scroll cue */}
+      <div style={{
+        position:'fixed', bottom:64, left:'50%', transform:'translateX(-50%)',
+        zIndex:10, textAlign:'center',
+        opacity: section===0 ? 1 : 0, transition:'opacity .5s'
+      }}>
+        <div style={{ fontFamily:"'Space Mono',monospace", fontSize:8, letterSpacing:4, color:'#333', marginBottom:10 }}>
+          SCROLL
+        </div>
+        <div style={{
+          width:1, height:44, background:'linear-gradient(to bottom,#9933ff,transparent)',
+          margin:'0 auto', animation:'drip 2s ease-in-out infinite'
+        }}/>
+      </div>
+
+      {/* ── PROJECTS ── */}
+      <Panel visible={section===2} tag="— SELECTED WORK" title="PROJECTS" style={{padding:'90px 7% 30px', justifyContent:'flex-start'}}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14, width:'100%', maxWidth:1100 }}>
+          {PROJECTS.map((p,i) => <ProjectCard key={i} project={p}/>)}
+        </div>
+      </Panel>
+
+      {/* ── TECH STACK ── */}
+      <Panel visible={section===3} tag="— EXPERTISE" title="TECH STACK">
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, maxWidth:860 }}>
+          {TECH.map((t,i) => <TechCard key={i} item={t}/>)}
+        </div>
+      </Panel>
+
+      {/* ── KNOWLEDGE ── */}
+      <Panel visible={section===4} tag="— DOMAINS" title="KNOWLEDGE">
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, maxWidth:960 }}>
+          {KNOWLEDGE.map((k,i) => <KnowCard key={i} item={k}/>)}
+        </div>
+
+        {/* How to add new stack — visible hint */}
+        <div style={{
+          marginTop:32, padding:'16px 20px',
+          background:'rgba(153,51,255,.05)', border:'1px dashed rgba(153,51,255,.2)',
+          borderRadius:6, maxWidth:960
+        }}>
+          <div style={{ fontFamily:"'Space Mono',monospace", fontSize:8, color:'#9933ff', letterSpacing:2, marginBottom:6 }}>
+            ✏️  just a portfolio prototype website 
+          </div>
+          <div style={{ fontFamily:"'Space Mono',monospace", fontSize:8, color:'#444', lineHeight:1.9 }}>
+            this is just a prototype of portfolio later can be use as portfolio with fine animations <br/>
+            {'{ area: "Cloud", items: ["AWS", "Firebase", "Docker", "Vercel"] }'}
+          </div>
+        </div>
+
+        <div style={{
+          marginTop:28, fontFamily:"'Space Mono',monospace", fontSize:8, letterSpacing:3,
+          color:'#222', display:'flex', alignItems:'center', gap:16, maxWidth:960
+        }}>
+          <span>RAMESH KUMAR © 2026</span>
+          <div style={{ flex:1, height:1, background:'#111' }}/>
+          <span>PORTFOLIO</span>
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>
