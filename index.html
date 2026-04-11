@@ -83,7 +83,7 @@ const PROJECTS = [
     img:   "https://i.postimg.cc/76HtjGym/Screenshot-2026-04-11-171944.png",   // ← paste image URL here//
     desc: "Shopping app with cart, payments, product management and a full admin dashboard.",
     tags: ["React", "TypeScript", "Redux", "Node.js"],
-    link: "#"
+    link: "https://igene-wa18.github.io/E-COMMERCE-CONCEPT-WEBSITE/"
   },
   {
     title: "3D Portfolio",
@@ -292,10 +292,15 @@ function ProjectCard({ project }) {
             }}>{t}</span>
           ))}
         </div>
-        <div style={{
-          marginTop:10, fontFamily:"'Space Mono',monospace", fontSize:8,
-          color:'#333', letterSpacing:1, display:'flex', alignItems:'center', gap:6
-        }}>VIEW PROJECT <span>→</span></div>
+        <a href={project.link} target="_blank" rel="noreferrer" style={{
+          fontFamily:"'Space Mono',monospace", fontSize:8,
+          color:'#333', letterSpacing:1, display:'flex', alignItems:'center', gap:6,
+          textDecoration:'none', marginTop:10
+        }}
+        onMouseEnter={e=>{e.target.style.color=project.color;}}
+        onMouseLeave={e=>{e.target.style.color='#333';}}
+        >VIEW PROJECT <span style={{color:project.color}}>→</span></a>
+        
       </div>
     </div>
   );
